@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="All rights reserved"
+
+[[mods]]
+modId="vault_casual"
+version="${file.jarVersion}"
+displayName="Vault Casual Mod"
+logoFile="casual.png"
+credits="haggiPlaysMC"
+authors="haggiPlaysMC"
+description=''''''
+
+[[dependencies.vault_casual]]
+    modId="the_vault"
+    mandatory=true
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.vault_casual]]
+    modId="forge"
+    mandatory=true
+    versionRange="[40,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.vault_casual]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.18.2,1.19)"
+    ordering="NONE"
+    side="BOTH"
