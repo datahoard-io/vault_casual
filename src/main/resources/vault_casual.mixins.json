@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.datahoard.vh.casual.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "vault_casual.refmap.json",
+  "mixins": [
+    "SpiritExtractorTileEntityMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
