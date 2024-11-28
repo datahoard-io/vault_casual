@@ -14,6 +14,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.ConnectionType;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -25,6 +27,7 @@ public abstract class ServerLifecycleHooksMixin {
 	@Shadow
 	private static final Marker SERVERHOOKS = MarkerManager.getMarker("SERVERHOOKS");
 
+	@OnlyIn(Dist.DEDICATED_SERVER)
 	@Inject(method = "rejectConnection", at = @At("HEAD"), cancellable = true, remap = false)
 	private static void hook_rejectConnection(final Connection manager, ConnectionType type, String message,
 			CallbackInfo ci) {

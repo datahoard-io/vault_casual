@@ -5,8 +5,10 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "vault_casual.refmap.json",
   "mixins": [
-    "SpiritExtractorTileEntityMixin",
-    "ServerLifecycleHooksMixin"
+	"ServerLifecycleHooksMixin",
+	"SpiritExtractorContainerMixin",
+	"SpiritExtractorScreenMixin",
+	"SpiritExtractorTileEntityMixin"
   ],
   "client": [
   ],
