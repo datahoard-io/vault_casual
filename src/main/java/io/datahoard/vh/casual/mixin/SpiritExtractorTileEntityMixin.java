@@ -51,33 +51,21 @@ public abstract class SpiritExtractorTileEntityMixin extends BlockEntity {
 	public void hook_recalculateCost(CallbackInfo ci) {
 		Level data = this.level;
 
-		VaultCasualMod.LOGGER.info("recalculateCost");
-
 		if (data instanceof ServerLevel serverLevel) {
-			VaultCasualMod.LOGGER.info("serverLevel {}", serverLevel);
-
 			if (this.gameProfile != null) {
-				VaultCasualMod.LOGGER.info("profile {}", this.gameProfile);
 
 				PlayerSpiritRecoveryData datax = PlayerSpiritRecoveryData.get(serverLevel);
 
 				float multiplier = datax.getSpiritRecoveryMultiplier(this.gameProfile.getId());
 
-				VaultCasualMod.LOGGER.info("base multiplier {}", multiplier);
-
 				multiplier *= (1 - CasualSaveData.get(serverLevel, this.gameProfile.getId()));
 
-				VaultCasualMod.LOGGER.info("adjusted multiplier {}", multiplier);
 
 				this.recoveryCost.calculate(multiplier, this.playerLevel, this.items, this.inventorySnapshot,
 						datax.getHeroDiscount(this.gameProfile.getId()), this.rescuedBonus);
 
 				ci.cancel();
 			}
-
-			VaultCasualMod.LOGGER.info("no profile");
 		}
-
-		VaultCasualMod.LOGGER.info("no server level");
 	}
 }
