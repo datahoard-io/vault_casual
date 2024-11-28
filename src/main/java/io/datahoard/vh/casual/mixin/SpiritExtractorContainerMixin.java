@@ -46,8 +46,6 @@ public abstract class SpiritExtractorContainerMixin extends OverSizedSlotContain
 			} else if (this.player instanceof GetRecoveryDiscount getter) {
 				final float discount = getter.getRecoveryDiscount();
 				setter.setRecoveryDiscount(discount);
-				VaultCasualMod.LOGGER.info("got {} from player in SpiritExtractorContainerMixin.updateRecoveryCost",
-						discount);
 			} else {
 				VaultCasualMod.LOGGER.warn("not ServerPlayer in SpiritExtractorContainerMixin.updateRecoveryCost");
 			}
@@ -64,12 +62,10 @@ public abstract class SpiritExtractorContainerMixin extends OverSizedSlotContain
 	@Inject(method = "getRecoveryCost", at = @At("HEAD"), remap = false, cancellable = true)
 	public void hook_getRecoveryCost(CallbackInfoReturnable<RecoveryCost> ci) {
 		if (this.tileEntity.getGameProfile().isEmpty()) {
-			VaultCasualMod.LOGGER.warn("no tileEntity in SpiritExtractorContainerMixin.getRecoveryCost");
 			this.updateRecoveryCost();
 			this.calculateCostForCurrentPlayer();
 			ci.setReturnValue(currentPlayersRecoveryCost);
 		} else {
-			VaultCasualMod.LOGGER.warn("got tileEntity in SpiritExtractorContainerMixin.getRecoveryCost");
 			ci.setReturnValue(this.tileEntity.getRecoveryCost());
 		}
 

@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import io.datahoard.vh.casual.VaultCasualMod;
 import io.datahoard.vh.casual.iface.GetRecoveryDiscount;
 import io.datahoard.vh.casual.iface.SetRecoveryDiscount;
 import iskallia.vault.block.entity.SpiritExtractorTileEntity.RecoveryCost;
@@ -49,8 +48,7 @@ public abstract class RecoveryCostMixin implements SetRecoveryDiscount, GetRecov
 
 	public float getRecoveryDiscount() {
 		if (this.recoveryDiscount.isEmpty()) {
-			VaultCasualMod.LOGGER.warn("missing recoveryDiscount in RecoveryCostMixin.getRecoveryDiscount");
-			return 1;
+			return 0;
 		}
 		return this.recoveryDiscount.get();
 	}
@@ -61,23 +59,17 @@ public abstract class RecoveryCostMixin implements SetRecoveryDiscount, GetRecov
 
 	@Inject(method = "serialize", at = @At("TAIL"), cancellable = true, remap = false)
 	public void hook_serialize(CallbackInfoReturnable<CompoundTag> ci) {
-		try {
-			final float value = this.recoveryDiscount.get().floatValue();
-			VaultCasualMod.LOGGER.info("serialize v={}", value);
+		this.recoveryDiscount.ifPresent((value) -> {
 			CompoundTag tag = ci.getReturnValue();
 			tag.putFloat("recoveryDiscount", value);
 			ci.setReturnValue(tag);
-		} catch (Throwable t) {
-			VaultCasualMod.LOGGER.warn("missing recoveryDiscount in RecoveryCostMixin.serialize:\n{}", t);
-		}
+		});
 	}
 
 	@Inject(method = "deserialize", at = @At("HEAD"), remap = false)
 	public void hook_deserialize(CompoundTag tag, CallbackInfo ci) {
 		if (tag.contains("recoveryDiscount")) {
 			this.recoveryDiscount = Optional.of(tag.getFloat("recoveryDiscount"));
-		} else {
-			VaultCasualMod.LOGGER.warn("missing recoveryDiscount in RecoveryCostMixin.deserialize");
 		}
 	}
 
@@ -85,7 +77,6 @@ public abstract class RecoveryCostMixin implements SetRecoveryDiscount, GetRecov
 	public void hook_calculate(float multiplier, int vaultLevel, List<ItemStack> items,
 			@Nullable InventorySnapshot inventorySnapshot, float heroDiscount, float rescuedBonus, CallbackInfo ci) {
 		if (this.recoveryDiscount.isEmpty()) {
-			VaultCasualMod.LOGGER.warn("missing recoveryDiscount in RecoveryCostMixin.calculate");
 			return;
 		}
 
