@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "vault_casual.refmap.json",
   "mixins": [
+	"PlayerMixin",
+	"RecoveryCostMixin",
 	"ServerLifecycleHooksMixin",
 	"SpiritExtractorContainerMixin",
 	"SpiritExtractorScreenMixin",
