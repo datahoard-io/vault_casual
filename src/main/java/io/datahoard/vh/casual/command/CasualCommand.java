@@ -1,5 +1,7 @@
 package io.datahoard.vh.casual.command;
 
+import java.util.List;
+
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -8,11 +10,16 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.datahoard.vh.casual.VaultCasualMod;
 import io.datahoard.vh.casual.config.CasualSaveData;
+import io.datahoard.vh.casual.helper.ResearchTeamStatus;
+import io.datahoard.vh.casual.iface.DumpToPlayer;
 import iskallia.vault.entity.entity.SpiritEntity;
+import iskallia.vault.util.PlayerReference;
 import iskallia.vault.world.data.InventorySnapshot;
+import iskallia.vault.world.data.PlayerResearchesData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,6 +28,10 @@ import net.minecraft.world.entity.Entity.RemovalReason;
 public class CasualCommand {
 	public void build(LiteralArgumentBuilder<CommandSourceStack> builder) {
 		builder.then(Commands.literal("revive").executes(this::revive));
+//		builder.then(Commands.literal("research").then(Commands.literal("dump").executes(this::dumpResearch)));
+//		builder.then(Commands.literal("research").then(Commands.literal("list").executes(this::listMissingResearch)));
+		builder.then(Commands.literal("research")
+				.then(Commands.literal("team").then(Commands.literal("status").executes(this::researchTeamStatus))));
 		builder.then(Commands.literal("discount").then(Commands.literal("get").executes(this::getPercent)));
 		builder.then(Commands.literal("discount").then(Commands.literal("set")
 				.then(Commands.argument("percent", IntegerArgumentType.integer(0, 100)).executes(this::setPercent))));
@@ -106,6 +117,123 @@ public class CasualCommand {
 		ServerPlayer player = ctx.getSource().getPlayerOrException();
 
 		CasualSaveData.set(level, player, percent.floatValue() / 100);
+
+		return 0;
+	}
+
+	private int dumpResearch(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		try {
+			ServerPlayer player = ((CommandSourceStack) ctx.getSource()).getPlayerOrException();
+			PlayerResearchesData data = PlayerResearchesData.get(player.getLevel());
+			DumpToPlayer dtp = (DumpToPlayer) data;
+			dtp.dumpToPlayer(player);
+		} catch (Throwable t) {
+			VaultCasualMod.LOGGER.warn("dumpResearch failed:\n{}", t);
+		}
+//		ResearchTree researches = data.getResearches(player);
+//		researches.getResearchesDone().forEach((name) -> {
+//			Research research = ModConfigs.RESEARCHES.getByName(name);
+//
+//			player.sendMessage(new TextComponent("You researched ").withStyle(ChatFormatting.GREEN)
+//					.append(new TextComponent(name).withStyle(ChatFormatting.AQUA))
+//					.append(new TextComponent(Integer.valueOf(research.getCost()).toString())
+//							.withStyle(ChatFormatting.YELLOW)),
+//					player.getUUID());
+//		});
+//
+		return 0;
+	}
+
+	private int listMissingResearch(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = ((CommandSourceStack) ctx.getSource()).getPlayerOrException();
+		PlayerResearchesData data = PlayerResearchesData.get(player.getLevel());
+//		GetMissingResearch getter = (GetMissingResearch) data;
+		List<PlayerReference> team = data.getTeamMembers(player.getUUID());
+		ResearchTeamStatus teamStatus = new ResearchTeamStatus(data, team);
+//		Map<String, GetMissingResearch.Entry> missing = getter.getMissingResearch(player);
+
+		player.sendMessage(new TextComponent("--- RESEARCH ---").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+				player.getUUID());
+
+//		ResearchTree researches = data.getResearches(player);
+//
+//		researches.getResearchesDone().forEach(researchName -> {
+//			player.sendMessage(new TextComponent(researchName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+//					player.getUUID());
+//		});
+
+		teamStatus.getByResearch().forEach((researchName, status) -> {
+			if (status.isResearchedBy(player.getUUID())) {
+				player.sendMessage(new TextComponent(researchName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
+						player.getUUID());
+				return;
+			}
+
+			// ✔
+
+			player.sendMessage(new TextComponent("missing: ").withStyle(ChatFormatting.RED)
+					.append(new TextComponent(researchName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+					.append(new TextComponent(" (base cost=").withStyle(ChatFormatting.DARK_AQUA))
+					.append(new TextComponent(status.getBaseCost().toString()).withStyle(ChatFormatting.AQUA))
+					.append(new TextComponent(", with penalty=").withStyle(ChatFormatting.DARK_AQUA))
+					.append(new TextComponent(status.getAdjusted().toString()).withStyle(ChatFormatting.AQUA))
+					.append(new TextComponent(", already payed=").withStyle(ChatFormatting.DARK_AQUA))
+					.append(new TextComponent(status.getSpent().toString()).withStyle(ChatFormatting.AQUA))
+					.append(new TextComponent(", remaining=").withStyle(ChatFormatting.DARK_AQUA))
+					.append(new TextComponent(status.getCost().toString()).withStyle(ChatFormatting.AQUA))
+					.append(new TextComponent(")").withStyle(ChatFormatting.DARK_AQUA)), player.getUUID());
+
+		});
+
+//		missing.forEach((researchName, entry) -> {
+//			player.sendMessage(new TextComponent("missing: ").withStyle(ChatFormatting.RED)
+//					.append(new TextComponent(researchName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+//					.append(new TextComponent(" (base cost=").withStyle(ChatFormatting.DARK_AQUA))
+//					.append(new TextComponent(entry.base.toString()).withStyle(ChatFormatting.AQUA))
+//					.append(new TextComponent(", adjusted=").withStyle(ChatFormatting.DARK_AQUA))
+//					.append(new TextComponent(entry.adjusted().toString()).withStyle(ChatFormatting.AQUA))
+//					.append(new TextComponent(", payed=").withStyle(ChatFormatting.DARK_AQUA))
+//					.append(new TextComponent(entry.payed().toString()).withStyle(ChatFormatting.AQUA))
+//					.append(new TextComponent(", remaining=").withStyle(ChatFormatting.DARK_AQUA))
+//					.append(new TextComponent(entry.payable().toString()).withStyle(ChatFormatting.AQUA))
+//					.append(new TextComponent(")").withStyle(ChatFormatting.DARK_AQUA)), player.getUUID());
+//		});
+		return 0;
+	}
+
+	private int researchTeamStatus(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerPlayer player = ((CommandSourceStack) ctx.getSource()).getPlayerOrException();
+		PlayerResearchesData data = PlayerResearchesData.get(player.getLevel());
+		List<PlayerReference> team = data.getTeamMembers(player.getUUID());
+		ResearchTeamStatus teamStatus = new ResearchTeamStatus(data, team);
+
+		player.sendMessage(
+				new TextComponent("--- RESEARCH TEAM ---").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+				player.getUUID());
+
+		teamStatus.getByResearch().forEach((researchName, status) -> {
+			if (status.researchedBy.size() == team.size()) {
+				player.sendMessage(
+						new TextComponent(researchName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
+								.append(new TextComponent(" ✔").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD)),
+						player.getUUID());
+				return;
+			}
+
+			player.sendMessage(new TextComponent(researchName).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
+					.append(new TextComponent(" (base cost=").withStyle(ChatFormatting.DARK_AQUA))
+					.append(new TextComponent(status.getBaseCost().toString()).withStyle(ChatFormatting.AQUA))
+					.append(new TextComponent(")").withStyle(ChatFormatting.DARK_AQUA)), player.getUUID());
+			team.forEach(ref -> {
+				MutableComponent text = new TextComponent("  ".concat(ref.getName())).withStyle(ChatFormatting.YELLOW);
+				if (status.isResearchedBy(ref.getId())) {
+					text = text.append(new TextComponent(" ✔").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+				} else {
+					text = text.append(new TextComponent(" ✖").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+				}
+				player.sendMessage(text, player.getUUID());
+			});
+		});
 
 		return 0;
 	}
