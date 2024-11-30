@@ -29,14 +29,18 @@ public abstract class ResearchDialogMixin extends AbstractDialog<ResearchesEleme
 	@Redirect(method = "update()V", at = @At(value = "INVOKE", target = "Liskallia/vault/research/ResearchTree;getTeamResearchCostIncreaseMultiplier()F"), remap = false)
 	public float hook_update_getTeamResearchCostIncreaseMultiplier(ResearchTree tree) {
 		Research research = ModConfigs.RESEARCHES.getByName(this.researchName);
-		AdjustedTeamResearch getter = (AdjustedTeamResearch) tree;
-		return getter.getAdjustedTeamResearchCostIncreaseMultiplier(research);
+		if (tree instanceof AdjustedTeamResearch getter) {
+			return getter.getAdjustedTeamResearchCostIncreaseMultiplier(research);
+		}
+		return tree.getTeamResearchCostIncreaseMultiplier();
 	}
 
 	@Redirect(method = "lambda$update$2", at = @At(value = "INVOKE", target = "Liskallia/vault/research/ResearchTree;getResearchShares()Ljava/util/List;"), remap = false, require = 2)
 	public List<PlayerReference> hook_update_getResearchShares(ResearchTree tree) {
 		Research research = ModConfigs.RESEARCHES.getByName(this.researchName);
-		AdjustedTeamResearch getter = (AdjustedTeamResearch) tree;
-		return getter.getPlayersWithout(research);
+		if (tree instanceof AdjustedTeamResearch getter) {
+			return getter.getPlayersWithout(research);
+		}
+		return tree.getResearchShares();
 	}
 }

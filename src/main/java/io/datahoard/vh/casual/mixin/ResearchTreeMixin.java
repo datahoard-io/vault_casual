@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.datahoard.vh.casual.VaultCasualMod;
 import io.datahoard.vh.casual.iface.AdjustedTeamResearch;
-import io.datahoard.vh.casual.iface.SerializeShallow;
 import io.datahoard.vh.casual.iface.ResearchData;
+import io.datahoard.vh.casual.iface.SerializeShallow;
 import iskallia.vault.config.ResearchGroupConfig;
 import iskallia.vault.init.ModConfigs;
 import iskallia.vault.research.ResearchTree;
@@ -27,8 +27,7 @@ import iskallia.vault.world.data.PlayerResearchesData;
 import net.minecraft.nbt.CompoundTag;
 
 @Mixin(value = ResearchTree.class, remap = false)
-public abstract class ResearchTreeMixin
-		implements ResearchData, SerializeShallow, AdjustedTeamResearch {
+public abstract class ResearchTreeMixin implements ResearchData, SerializeShallow, AdjustedTeamResearch {
 	@Shadow
 	protected final List<String> researchesDone = new ArrayList<>();
 	@Shadow
@@ -67,22 +66,18 @@ public abstract class ResearchTreeMixin
 	}
 
 	public List<PlayerReference> getPlayersWithout(Research research) {
-		VaultCasualMod.LOGGER.warn("ResearchTreeMixin.getPlayersWithout({})", research.getName());
-		List<PlayerReference> missing = new ArrayList<>();
-		this.researchShares.forEach(player -> {
-			final boolean has = this.researchData.get().getResearches(player.getId()).isResearched(research);
-			VaultCasualMod.LOGGER.warn("  player={} researched={}", player.getName(), has);
-			if (!has) {
-				missing.add(player);
-			}
-		});
-		return missing;
+		return this.researchShares.stream().filter(player -> {
+			return !this.researchData.get().getResearches(player.getId()).isResearched(research);
+		}).toList();
 	}
 
 	public float getAdjustedTeamResearchCostIncreaseMultiplier(Research research) {
 		// naming is wrong, should be isPenaltyDisabled
 		if (ResearchTree.isPenalty) {
 			return 0.0F;
+		}
+		if (this.researchData.isEmpty()) {
+			return (float) this.researchShares.size() * 0.5F;
 		}
 		return (float) this.researchShares.stream().filter(player -> {
 			return !this.researchData.get().getResearches(player.getId()).isResearched(research);
