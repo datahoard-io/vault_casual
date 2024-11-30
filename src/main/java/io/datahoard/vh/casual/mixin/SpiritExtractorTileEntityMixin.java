@@ -11,7 +11,7 @@ import com.mojang.authlib.GameProfile;
 
 import io.datahoard.vh.casual.VaultCasualMod;
 import io.datahoard.vh.casual.config.CasualSaveData;
-import io.datahoard.vh.casual.iface.SetRecoveryDiscount;
+import io.datahoard.vh.casual.iface.RecoveryDiscount;
 import iskallia.vault.block.entity.SpiritExtractorTileEntity;
 import iskallia.vault.world.data.InventorySnapshot;
 import net.minecraft.core.BlockPos;
@@ -42,20 +42,6 @@ public abstract class SpiritExtractorTileEntityMixin extends BlockEntity {
 	@OnlyIn(Dist.DEDICATED_SERVER)
 	@Inject(method = "addSpiritRecoveryData", at = @At("HEAD"), cancellable = true)
 	private void hook_addSpiritRecoveryData(CallbackInfoReturnable<CompoundTag> ci) {
-//		if (this.gameProfile != null) {
-//			if (this.recoveryCost instanceof SetRecoveryDiscount setter) {
-//				if (this.level instanceof ServerLevel serverLevel) {
-//					setter.setRecoveryDiscount(CasualSaveData.get(serverLevel, this.gameProfile.getId()));
-//				} else {
-//					VaultCasualMod.LOGGER.warn("not ServerLevel in SpiritExtractorTileEntity.addSpiritRecoveryData");
-//				}
-//			} else {
-//				VaultCasualMod.LOGGER.warn(
-//						"cannot setRecoveryDiscount on recoveryCost in SpiritExtractorTileEntity.addSpiritRecoveryData");
-//			}
-//		} else {
-//			VaultCasualMod.LOGGER.info("no gameProfile in SpiritExtractorTileEntity.addSpiritRecoveryData");
-//		}
 		this.updateRecoveryDiscount();
 	}
 
@@ -66,7 +52,7 @@ public abstract class SpiritExtractorTileEntityMixin extends BlockEntity {
 		}
 
 		if (this.level instanceof ServerLevel serverLevel) {
-			if (this.recoveryCost instanceof SetRecoveryDiscount setter) {
+			if (this.recoveryCost instanceof RecoveryDiscount.Setter setter) {
 				setter.setRecoveryDiscount(CasualSaveData.get(serverLevel, this.gameProfile.getId()));
 			}
 		} else {

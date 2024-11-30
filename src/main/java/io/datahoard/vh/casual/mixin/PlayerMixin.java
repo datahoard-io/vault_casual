@@ -6,8 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.datahoard.vh.casual.VaultCasualMod;
-import io.datahoard.vh.casual.iface.GetRecoveryDiscount;
-import io.datahoard.vh.casual.iface.SetRecoveryDiscount;
+import io.datahoard.vh.casual.iface.RecoveryDiscount;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 @Mixin(value = Player.class)
-public abstract class PlayerMixin extends LivingEntity implements GetRecoveryDiscount, SetRecoveryDiscount {
+public abstract class PlayerMixin extends LivingEntity implements RecoveryDiscount.Getter, RecoveryDiscount.Setter {
 	private static EntityDataAccessor<Float> RECOVERY_DISCOUNT = SynchedEntityData.defineId(Player.class,
 			EntityDataSerializers.FLOAT);
 	private static String RECOVERY_DISCOUNT_TAG = "recoveryDiscount";

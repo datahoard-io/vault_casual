@@ -14,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.datahoard.vh.casual.VaultCasualMod;
-import io.datahoard.vh.casual.iface.GetAdjustedTeamResearchCostIncreaseMultiplier;
+import io.datahoard.vh.casual.iface.AdjustedTeamResearch;
 import io.datahoard.vh.casual.iface.SerializeShallow;
-import io.datahoard.vh.casual.iface.SetResearchData;
+import io.datahoard.vh.casual.iface.ResearchData;
 import iskallia.vault.config.ResearchGroupConfig;
 import iskallia.vault.init.ModConfigs;
 import iskallia.vault.research.ResearchTree;
@@ -28,7 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 
 @Mixin(value = ResearchTree.class, remap = false)
 public abstract class ResearchTreeMixin
-		implements SetResearchData, SerializeShallow, GetAdjustedTeamResearchCostIncreaseMultiplier {
+		implements ResearchData, SerializeShallow, AdjustedTeamResearch {
 	@Shadow
 	protected final List<String> researchesDone = new ArrayList<>();
 	@Shadow

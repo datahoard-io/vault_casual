@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.datahoard.vh.casual.VaultCasualMod;
-import io.datahoard.vh.casual.iface.GetRecoveryDiscount;
+import io.datahoard.vh.casual.iface.RecoveryDiscount;
 import iskallia.vault.block.entity.SpiritExtractorTileEntity.RecoveryCost;
 import iskallia.vault.client.gui.framework.render.spi.IElementRenderer;
 import iskallia.vault.client.gui.framework.render.spi.ITooltipRendererFactory;
@@ -35,7 +35,7 @@ public abstract class SpiritExtractorScreenMixin extends AbstractElementContaine
 	@Inject(method = "getPurchaseButtonTooltipLines", at = @At("RETURN"), cancellable = true)
 	protected void hook_getPurchaseButtonTooltipLines(CallbackInfoReturnable<List<Component>> ci) {
 		final RecoveryCost recoveryCost = this.getMenu().getRecoveryCost();
-		if (recoveryCost instanceof GetRecoveryDiscount getter) {
+		if (recoveryCost instanceof RecoveryDiscount.Getter getter) {
 			ArrayList<Component> rv = new ArrayList<Component>(ci.getReturnValue());
 			rv.add(TextComponent.EMPTY);
 			rv.add(new TextComponent("Casual discount ").withStyle(ChatFormatting.GREEN)

@@ -9,8 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import io.datahoard.vh.casual.VaultCasualMod;
 import io.datahoard.vh.casual.config.CasualSaveData;
-import io.datahoard.vh.casual.iface.GetRecoveryDiscount;
-import io.datahoard.vh.casual.iface.SetRecoveryDiscount;
+import io.datahoard.vh.casual.iface.RecoveryDiscount;
 import iskallia.vault.block.entity.SpiritExtractorTileEntity;
 import iskallia.vault.block.entity.SpiritExtractorTileEntity.RecoveryCost;
 import iskallia.vault.container.SpiritExtractorContainer;
@@ -39,11 +38,11 @@ public abstract class SpiritExtractorContainerMixin extends OverSizedSlotContain
 
 	private void updateRecoveryCost() {
 		VaultCasualMod.LOGGER.info("SpiritExtractorContainerMixin.updateRecoveryCost");
-		if (this.currentPlayersRecoveryCost instanceof SetRecoveryDiscount setter) {
+		if (this.currentPlayersRecoveryCost instanceof RecoveryDiscount.Setter setter) {
 			if (this.player instanceof ServerPlayer player && player.level instanceof ServerLevel serverLevel) {
 				final float discount = CasualSaveData.get(serverLevel, player);
 				setter.setRecoveryDiscount(discount);
-			} else if (this.player instanceof GetRecoveryDiscount getter) {
+			} else if (this.player instanceof RecoveryDiscount.Getter getter) {
 				final float discount = getter.getRecoveryDiscount();
 				setter.setRecoveryDiscount(discount);
 			} else {

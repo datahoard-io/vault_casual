@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
-import io.datahoard.vh.casual.iface.SetRecoveryDiscount;
+import io.datahoard.vh.casual.iface.RecoveryDiscount;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,7 +50,7 @@ public class CasualSaveData extends SavedData {
 			throw new RuntimeException("Someone accessed this from the client");
 		}
 
-		SetRecoveryDiscount setter = (SetRecoveryDiscount) player;
+		RecoveryDiscount.Setter setter = (RecoveryDiscount.Setter) player;
 		setter.setRecoveryDiscount(value);
 
 		DimensionDataStorage storage = ((ServerLevel) world).getDataStorage();

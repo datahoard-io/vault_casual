@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import io.datahoard.vh.casual.iface.GetRecoveryDiscount;
-import io.datahoard.vh.casual.iface.SetRecoveryDiscount;
+import io.datahoard.vh.casual.iface.RecoveryDiscount;
 import iskallia.vault.block.entity.SpiritExtractorTileEntity.RecoveryCost;
 import iskallia.vault.config.SpiritConfig.LevelCost;
 import iskallia.vault.container.oversized.OverSizedItemStack;
@@ -24,7 +23,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 
 @Mixin(value = RecoveryCost.class, remap = false)
-public abstract class RecoveryCostMixin implements SetRecoveryDiscount, GetRecoveryDiscount {
+public abstract class RecoveryCostMixin implements RecoveryDiscount.Getter, RecoveryDiscount.Setter {
 	@Shadow
 	private OverSizedItemStack totalCost = OverSizedItemStack.EMPTY;
 
