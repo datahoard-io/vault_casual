@@ -27,7 +27,7 @@ import iskallia.vault.world.data.PlayerResearchesData;
 import net.minecraft.nbt.CompoundTag;
 
 @Mixin(value = ResearchTree.class, remap = false)
-public abstract class ResearchTreeMixin implements ResearchData, SerializeShallow, AdjustedTeamResearch {
+public abstract class ResearchTreeMixin implements ResearchData.Setter, SerializeShallow, AdjustedTeamResearch {
 	@Shadow
 	protected final List<String> researchesDone = new ArrayList<>();
 	@Shadow
