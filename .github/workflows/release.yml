@@ -30,3 +30,10 @@ jobs:
         with:
           files: "build/libs/*.jar"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Discord Webhook Action
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          embed-title: "New Vault Casual Release"
+          embed-description: "A new release of Vault Casual has been published! \n [Download JAR](${{ github.event.release.upload_url }})"
+      
