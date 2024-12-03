@@ -1,0 +1,39 @@
+name: Build and Release JAR
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Build mod
+        run: ./gradlew build
+      - uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "build/libs/*.jar"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Discord Webhook Action
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          embed-title: "New Vault Casual Release"
+          embed-description: "A new release of Vault Casual has been published! \n [Download JAR](${{ github.event.release.upload_url }})"
+      
